@@ -6,10 +6,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background:linear-gradient(to left, rgba(7,55,82,1) 0%, rgba(0,128,128,1)100%  );
+  background:linear-gradient(89deg, rgba(12, 23, 184, 0.733) 0%, rgba(221, 59, 38, 0.829)100%  );
 }
 
-code {
+/* code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+} */
+
+.center{
+  display: flex;
+  justify-content: center;
 }

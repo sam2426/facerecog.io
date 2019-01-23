@@ -1,8 +1,15 @@
 import React from 'react';
+import './FaceRecogintion.css';
 
-const FaceRecoginition = () =>{
+const FaceRecoginition = ({ imageURL, box }) =>{
     return(
-        <p>FaceRecoginition</p>
+        <div className="center ma">
+            <div className="absolute ma2">
+            <img id='inputImage' alt="" src={imageURL}  width='500px' height='auto'/>
+            <div className='faceBox'
+            style={{top:box.top,right:box.right,bottom:box.bottom,left:box.left}}></div>
+        </div>
+        </div>
     );
 }
 
