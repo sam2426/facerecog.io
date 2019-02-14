@@ -3,6 +3,8 @@ import Navigation from './components/Navigation/Navigation';
 import Logo from './components/Logo/Logo'
 import FaceRecoginition from './components/FaceRecoginition/FaceRecoginition'
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm'
+import Signin from './components/Signin/Signin'
+import Register from './components/Register/Register'
 import Rank from './components/Rank/Rank'
 import Particles from 'react-particles-js'
 import './App.css'
@@ -32,6 +34,15 @@ class App extends Component{
             input:'',
             imageURL:'',
             box:{},
+            route:'signin',
+            isSignedIn:false,
+            user:{
+                id : '',
+                name : '',
+                email : '',
+                entries : '',
+                joined : '',
+            }
         }
     }
 
@@ -49,7 +60,6 @@ class App extends Component{
     }
 //width-
     displayFaceBox = (box) =>{
-        console.log(box);
         this.setState({box:box});
     }
 
@@ -60,8 +70,35 @@ class App extends Component{
     onSubmit=()=>{
         this.setState({imageURL:this.state.input})
         app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-        .then(response=> {this.displayFaceBox(this.faceBox(response))})
+        .then(response=> {
+            if(response){
+                fetch('http://localhost:3000/image', {
+                    method:'put',
+                    headers:{'Content-Type' : 'application/json'},
+                    body:JSON.stringify({
+                        id:this.state.user.id,
+                    })
+                })
+                .then(response => response.json())
+                .then(count => {
+                    this.setState(Object.assign(this.state.user, {entries:count}))
+                })
+            }
+
+            this.displayFaceBox(this.faceBox(response))})
         .catch((err) => console.log(err));
+    }
+
+    loadUser = (data)=>{
+        console.log(data);
+        this.setState({user:{
+            id : data.id,
+            name : data.name,
+            email : data.email,
+            entries : data.entries,
+            joined : data.joined,
+
+        }})
     }
 
     // const inputBox=document.getElementById("inputUrlBox");
@@ -81,6 +118,16 @@ class App extends Component{
             }
         },false)
     }
+
+onRouteChange=(route)=>{
+    if(route==='signin'){
+        this.setState({isSignedIn:false})
+    }
+    else if(route==='home'){
+        this.setState({isSignedIn:true})
+    }
+    this.setState({route:route});
+}
 
     // onUrlPaste=()=>{
     //     const inputBox=document.getElementById("inputUrlBox");
@@ -102,17 +149,30 @@ class App extends Component{
             <div className="App">
                 <Particles className='particles'
                 params={particleOptions} />
-                <Navigation/>
-                <Logo/>
-                <Rank />
-                
-                <ImageLinkForm onInputChange={this.onInputChange} 
-                onSubmit={this.onSubmit} 
-                onInputKey={this.onInputKey}
-                // onUrlPaste={this.onUrlPaste}
-                />
-                
-                <FaceRecoginition imageURL={this.state.imageURL} box={this.state.box}/>
+                <Navigation onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
+                { this.state.route==='home'
+                    ?<div>
+                        <Logo/>
+                        <Rank 
+                            name={this.state.user.name}
+                            entries={this.state.user.entries}
+                        />
+                        
+                        <ImageLinkForm onInputChange={this.onInputChange} 
+                        onSubmit={this.onSubmit} 
+                        onInputKey={this.onInputKey}
+                        // onUrlPaste={this.onUrlPaste}
+                        />
+                        
+                        <FaceRecoginition imageURL={this.state.imageURL} box={this.state.box}/>
+                    </div>
+                    :(
+                        this.state.route==='signin'
+                        ?<Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+                        :<Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+                    )
+                    
+                }
             </div>
         );
     }
