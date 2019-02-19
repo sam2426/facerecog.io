@@ -68,7 +68,7 @@ class App extends Component{
     }
 
     onSubmit=()=>{
-        this.setState({imageURL:this.state.input})
+        // this.setState({imageURL:this.state.input})
         app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
         .then(response=> {
             if(response){
@@ -112,9 +112,9 @@ class App extends Component{
         inputBox.addEventListener("keypress",(event)=>{
             if(event.keyCode===13 && inputBox.value.length>0){
                 this.setState({imageURL:this.state.input})
-                app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-                .then(response=> {this.displayFaceBox(this.faceBox(response))})
-                .catch((err) => console.log(err));
+                // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+                // .then(response=> {this.displayFaceBox(this.faceBox(response))})
+                // .catch((err) => console.log(err));
             }
         },false)
     }
@@ -168,7 +168,7 @@ onRouteChange=(route)=>{
                     </div>
                     :(
                         this.state.route==='signin'
-                        ?<Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+                        ?<Signin  loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
                         :<Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
                     )
                     
