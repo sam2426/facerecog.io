@@ -8,11 +8,7 @@ import Register from './components/Register/Register'
 import Rank from './components/Rank/Rank'
 import Particles from 'react-particles-js'
 import './App.css'
-import Clarifai from 'clarifai'
 
-const app = new Clarifai.App({
-    apiKey: '52d868a0788240eea8af0e87807732d6'
-   });
 
 const particleOptions={
     particles: {
@@ -27,23 +23,25 @@ const particleOptions={
     }
 }
 
+const initialState = {
+    input:'',
+    imageURL:'',
+    box:{},
+    route:'signin',
+    isSignedIn:false,
+    user:{
+        id : '',
+        name : '',
+        email : '',
+        entries : '',
+        joined : '',
+    }
+}
+
 class App extends Component{
     constructor(){
         super();
-        this.state={
-            input:'',
-            imageURL:'',
-            box:{},
-            route:'signin',
-            isSignedIn:false,
-            user:{
-                id : '',
-                name : '',
-                email : '',
-                entries : '',
-                joined : '',
-            }
-        }
+        this.state= initialState;
     }
 
     faceBox=(data)=>{
@@ -68,8 +66,18 @@ class App extends Component{
     }
 
     onSubmit=()=>{
-        // this.setState({imageURL:this.state.input})
-        app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+        
+        (this.state.imageURL)? console.log('') : this.setState({imageURL:this.state.input});
+       
+        // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+        fetch('http://localhost:3000/imageurl', {
+            method:'post',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+            input:this.state.input
+            })
+        })
+        .then(response => response.json()) 
         .then(response=> {
             if(response){
                 fetch('http://localhost:3000/image', {
@@ -83,6 +91,7 @@ class App extends Component{
                 .then(count => {
                     this.setState(Object.assign(this.state.user, {entries:count}))
                 })
+                .catch((err) => console.log(err));
             }
 
             this.displayFaceBox(this.faceBox(response))})
@@ -90,7 +99,7 @@ class App extends Component{
     }
 
     loadUser = (data)=>{
-        console.log(data);
+        //console.log(data);
         this.setState({user:{
             id : data.id,
             name : data.name,
@@ -110,18 +119,22 @@ class App extends Component{
     onInputKey=()=>{
         const inputBox=document.getElementById("inputUrlBox");
         inputBox.addEventListener("keypress",(event)=>{
-            if(event.keyCode===13 && inputBox.value.length>0){
-                this.setState({imageURL:this.state.input})
-                // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-                // .then(response=> {this.displayFaceBox(this.faceBox(response))})
-                // .catch((err) => console.log(err));
+            console.log(event.keyCode);
+            if(event.keyCode===50){
+                console.log(event.keyCode);
             }
-        },false)
+            // if(event.keyCode===13 && inputBox.value.length>0){
+            //     this.setState({imageURL:this.state.input})
+            //     // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+            //     // .then(response=> {this.displayFaceBox(this.faceBox(response))})
+            //     // .catch((err) => console.log(err));
+            // }
+        })
     }
 
 onRouteChange=(route)=>{
     if(route==='signin'){
-        this.setState({isSignedIn:false})
+        this.setState(initialState)
     }
     else if(route==='home'){
         this.setState({isSignedIn:true})
